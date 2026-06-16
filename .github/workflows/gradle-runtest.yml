@@ -39,7 +39,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Run Tests
-      uses: ./gradlew test
+      run: ./gradlew test
 
     - name: Upload Test Report
       if: always()
