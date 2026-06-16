@@ -1,1 +1,6 @@
 rootProject.name = 'Microservices'
+
+include 'booking-service'
+include 'api-gateway'
+include 'service-registry'
+include 'user-service'
