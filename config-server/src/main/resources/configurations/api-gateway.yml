@@ -23,7 +23,8 @@ spring:
             - Path=/api/booking
 eureka:
   client:
+    initial-instance-info-replication-interval-seconds: 5
     serviceUrl:
-      defaultZone: http//eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@localhost:8761/eureka/
 app:
   eureka-server: localhost

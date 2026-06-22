@@ -1,5 +1,6 @@
 eureka:
   client:
+    initial-instance-info-replication-interval-seconds: 5
     serviceUrl:
       defaultZone: http://service-registry:8761/eureka
   instance:
