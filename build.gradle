@@ -25,6 +25,11 @@ subprojects {
         }
     }
 
+    dependencies{
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+    }
+
     plugins.withId('org.springframework.boot'){
         tasks.named('bootBuildImage'){
             imageName = "microservices/${project.name}:${project.version}"
