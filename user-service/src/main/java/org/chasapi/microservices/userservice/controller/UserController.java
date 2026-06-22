@@ -1,7 +1,7 @@
-package com.example.controller;
+package org.chasapi.microservices.userservice.controller;
 
-import com.example.Service.UserService;
-import com.example.model.User;
+import org.chasapi.microservices.userservice.Service.UserService;
+import org.chasapi.microservices.userservice.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

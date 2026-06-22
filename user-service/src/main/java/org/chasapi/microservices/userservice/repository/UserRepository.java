@@ -1,6 +1,6 @@
-package com.example.repository;
+package org.chasapi.microservices.userservice.repository;
 
-import com.example.model.User;
+import org.chasapi.microservices.userservice.model.User;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

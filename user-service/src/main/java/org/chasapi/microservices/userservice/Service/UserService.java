@@ -1,7 +1,7 @@
-package com.example.Service;
+package org.chasapi.microservices.userservice.Service;
 
-import com.example.model.User;
-import com.example.repository.UserRepository;
+import org.chasapi.microservices.userservice.model.User;
+import org.chasapi.microservices.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

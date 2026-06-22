@@ -1,4 +1,4 @@
-package com.example.model;
+package org.chasapi.microservices.userservice.model;
 
 import jakarta.persistence.*;
 
