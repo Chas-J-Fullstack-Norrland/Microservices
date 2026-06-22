@@ -1,20 +1,15 @@
 plugins {
-    id 'java'
+    id 'org.springframework.boot'
 }
-
-group = 'org.ChasAPI'
-version = '0.0.1-SNAPSHOT'
-
-repositories {
-    mavenCentral()
+ext {
+    springCloudVersion = "2025.1.2"
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:6.0.0')
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc'
+
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-test {
-    useJUnitPlatform()
 }
