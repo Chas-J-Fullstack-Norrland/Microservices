@@ -1,0 +1,81 @@
+services:
+
+  postgres-booking:
+    image: postgres
+    container_name: postgres-booking
+    environment:
+      POSTGRES_DB: booking_service
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - ./databases/postgres-booking:/var/lib/postgresql/data
+    expose:
+      - "5431"
+    ports:
+      - "5431:5431"
+    command: -p 5431
+    restart: always
+
+  postgres-user:
+    image: postgres
+    container_name: postgres-user
+    environment:
+      POSTGRES_DB: user_service
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - ./databases/postgres-user:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    command: -p 5432
+    restart: always
+
+
+  service-registry:
+    image: microservices/service-registry
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  config-server:
+    image: microservices/config-server:latest
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      #- EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/
+    depends_on:
+      - service-registry
+
+  api-gateway:
+    image: microservices/api-gateway
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  booking-service:
+    image: microservices/booking-service
+    container_name: booking-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - api-gateway
+
+  user-service:
+    image: microservices/user-service
+    container_name: user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - api-gateway
+

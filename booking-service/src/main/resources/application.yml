@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: booking-service
+  config:
+    retry:
+      max-attempts: 10
+      initial-interval: 2000
+    import: optional:configserver:http://localhost:8888

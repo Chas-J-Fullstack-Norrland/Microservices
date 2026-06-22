@@ -1,0 +1,12 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: booking-service
+
+  datasource:
+    url: jdbc:postgresql://postgres-booking:5431/booking_service
+    driver-class-name: org.postgresql.Driver
+    username: admin
+    password: password
