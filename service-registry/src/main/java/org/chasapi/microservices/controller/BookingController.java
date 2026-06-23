@@ -12,6 +12,12 @@ public class BookingController {
     public BookingController(BookingService service) {
         this.service = service;
     }
+    @GetMapping("/bookings")
+    public List<Booking> getBookings(HttpServletRequest request) {
+        String user = (String) request.getAttribute("user");
+        System.out.println("Request from user: " + user);
+        return service.getAllBookings();
+    }
     @GetMapping
     public List<Booking> getAllBookings() {
         return service.getAllBookings();
