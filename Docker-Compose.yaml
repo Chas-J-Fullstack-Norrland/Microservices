@@ -62,12 +62,14 @@ services:
       - "8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URI=http://config-server:8888
 
   booking-service:
     image: microservices/booking-service
     container_name: booking-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URI=http://config-server:8888
     depends_on:
       - api-gateway
 
@@ -76,6 +78,7 @@ services:
     container_name: user-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URI=http://config-server:8888
     depends_on:
       - api-gateway
 
