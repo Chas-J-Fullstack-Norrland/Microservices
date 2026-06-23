@@ -6,6 +6,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.boot:spring-boot-starter-aop:4.0.0-M2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
