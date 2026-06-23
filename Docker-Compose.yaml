@@ -37,7 +37,7 @@ services:
 
   service-registry:
     image: microservices/service-registry
-    container_name: discovery-server
+    container_name: service-registry
     ports:
       - "8761:8761"
     environment:
@@ -50,7 +50,7 @@ services:
       - "8888:8888"
     environment:
       - SPRING_PROFILES_ACTIVE=native
-      #- EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka
     depends_on:
       - service-registry
 
