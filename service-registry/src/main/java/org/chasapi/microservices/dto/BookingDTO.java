@@ -3,7 +3,7 @@ import java.util.Date;
 public class BookingDTO {
     private Long id;
     private Date date;
-    private int timeslot:
+    private int timeslot;
     private long userId;
 
     public BookingDTO() {}
