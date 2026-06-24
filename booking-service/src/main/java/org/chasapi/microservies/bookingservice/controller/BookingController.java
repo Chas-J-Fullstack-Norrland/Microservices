@@ -1,6 +1,5 @@
 package org.chasapi.microservies.bookingservice.controller;
 
-import jakarta.ws.rs.Path;
 import org.chasapi.microservies.bookingservice.model.Booking;
 import org.chasapi.microservies.bookingservice.service.BookingService;
 import org.springframework.web.bind.annotation.*;
@@ -15,25 +14,25 @@ public class BookingController {
         this.service = service;
     }
     @GetMapping
-    public List<Booking> getAll() {
+    public List<Booking> getAllBookings() {
         return service.getAllBookings();
     }
     @GetMapping("/{id}")
-    public Booking getById(@PathVariable Long id) {
+    public Booking getBooking(@PathVariable Long id) {
         return service.getBookingById(id);
     }
     @PostMapping
-    public Booking create(@RequestBody Booking booking) {
+    public Booking createBooking(@RequestBody Booking booking) {
         return service.createBooking(booking);
     }
     @PutMapping("/{id}")
-    public Booking update(
+    public Booking updateBooking(
             @PathVariable Long id,
             @RequestBody Booking booking) {
         return service.updateBooking(id, booking);
     }
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void deleteBooking(@PathVariable Long id) {
         service.deleteBooking(id);
     }
 

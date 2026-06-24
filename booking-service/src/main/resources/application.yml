@@ -6,3 +6,14 @@ spring:
       max-attempts: 10
       initial-interval: 2000
     import: optional:configserver:http://localhost:8888
+    spring:
+      datasource:
+        url: jdbc:postgresql://localhost:5432/bookingdb
+        username: postgres
+        password: postgres
+
+      jpa:
+        hibernate:
+          ddl-auto: update
+
+        show-sql: true
