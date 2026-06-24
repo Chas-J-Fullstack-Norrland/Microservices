@@ -19,8 +19,8 @@ public class BookingController {
         return service.getAllBookings();
     }
     @GetMapping("/{id}")
-    public Booking getById(@PathVariable, Long id) {
-        return service.getBookingById();
+    public Booking getById(@PathVariable Long id) {
+        return service.getBookingById(id);
     }
     @PostMapping
     public Booking create(@RequestBody Booking booking) {
