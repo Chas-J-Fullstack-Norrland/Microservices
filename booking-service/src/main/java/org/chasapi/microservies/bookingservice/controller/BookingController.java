@@ -2,6 +2,8 @@ package org.chasapi.microservies.bookingservice.controller;
 
 import org.chasapi.microservies.bookingservice.model.Booking;
 import org.chasapi.microservies.bookingservice.service.BookingService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +24,8 @@ public class BookingController {
         return service.getBookingById(id);
     }
     @PostMapping
-    public Booking createBooking(@RequestBody Booking booking) {
-        return service.createBooking(booking);
+    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createBooking(booking));
     }
     @PutMapping("/{id}")
     public Booking updateBooking(
