@@ -6,21 +6,29 @@ spring:
     name: api-gateway
   cloud:
     gateway:
-      routes:
-        - id: booking-service
-          uri: lb://booking
-          predicates:
-            - Path=/api/bookings/**
+      server:
+        webflux:
+          routes:
+            - id: booking-service
+              uri: lb://BOOKING-SERVICE
+              predicates:
+                - Path=/bookings/**
+              filters:
+                - GatewayAuthFilter
 
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/api/users/**
+            - id: user-service
+              uri: lb://USER-SERVICE
+              predicates:
+                - Path=/users/**
+              filters:
+                - GatewayAuthFilter
 
-        - id: service-registry
-          uri: lb://eureka:password
-          predicates:
-            - Path=/api/booking
+            - id: service-registry
+              uri: lb://eureka:password
+              predicates:
+                - Path=/eureka/**
+              filters:
+                - GatewayAuthFilter
 eureka:
   client:
     initial-instance-info-replication-interval-seconds: 5

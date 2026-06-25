@@ -33,6 +33,7 @@ subprojects {
     plugins.withId('org.springframework.boot'){
         tasks.named('bootBuildImage'){
             imageName = "microservices/${project.name}:${project.version}"
+            builder = 'paketobuildpacks/builder-noble-java-tiny:0.0.100'
         }
 
         tasks.named('build'){

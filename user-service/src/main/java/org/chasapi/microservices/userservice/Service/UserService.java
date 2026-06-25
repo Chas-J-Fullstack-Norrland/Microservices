@@ -29,6 +29,9 @@ public class UserService {
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
+    public Optional<User> getUserByUserName(String name) {
+        return userRepository.findByUsername(name);
+    }
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

@@ -6,6 +6,8 @@ spring:
     import: configserver:${CONFIG_SERVER_URI:http://localhost:8888}
 
   cloud:
+    openfeign:
+      lazy-attributes-resolution: true
     config:
       fail-fast: true
       retry:
@@ -18,3 +20,8 @@ logging:
     org.springframework.cloud.config: DEBUG
     org.springframework.retry: DEBUG
     org.springframework.boot.context.config: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway,health,info
