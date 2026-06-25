@@ -13,6 +13,29 @@ spring:
         initial-interval: 2000
         multiplier: 1.5
         max-interval: 8000
+
+    #Gateway för integration av swagger ui -O-
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+            
+        - id: booking-service
+          uri: lb://booking-service
+          predicates:
+            - Path=/booking/**
+
+#Pseudokod för swagger integration -O-
+springdoc:
+  swagger-ui:
+    urls:
+      - name: User Service
+        url: /user/v3/api-docs
+      - name: Booking Service
+        url: /booking/v3/api-docs
+
 logging:
   level:
     org.springframework.cloud.config: DEBUG
