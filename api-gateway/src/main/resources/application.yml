@@ -6,8 +6,6 @@ spring:
     import: configserver:${CONFIG_SERVER_URI:http://localhost:8888}
 
   cloud:
-    openfeign:
-      lazy-attributes-resolution: true
     config:
       fail-fast: true
       retry:
@@ -17,11 +15,14 @@ spring:
         max-interval: 8000
 logging:
   level:
-    org.springframework.cloud.config: DEBUG
-    org.springframework.retry: DEBUG
-    org.springframework.boot.context.config: DEBUG
+    reactor.netty.http.client: DEBUG
+    org.springframework.web.reactive.function.client: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
+    com.netflix.discovery: DEBUG
+    org.springframework.cloud.gateway: TRACE
 management:
   endpoints:
     web:
       exposure:
-        include: gateway,health,info
+        include: "*"
+

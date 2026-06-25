@@ -12,7 +12,7 @@ public class JwtTokenGenerator {
     private static final String SECRET ="THISSHOULDBEANUNSEENSEECRETUNSEENBYALLSECRET";
     private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public static String generateToken(String subject,String type,String role){
+    public static String generateToken(String subject,String type,String role,int ttlms){
         try{
             return Jwts.builder()
                     .subject(subject)
@@ -20,7 +20,7 @@ public class JwtTokenGenerator {
                     .claim("role",role)
                     .issuedAt(new Date())
                     .expiration(new Date(
-                            System.currentTimeMillis() + 1800000
+                            System.currentTimeMillis() + ttlms
                     ))
                     .signWith(key)
                     .compact();
