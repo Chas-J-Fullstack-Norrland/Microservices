@@ -20,7 +20,7 @@ public class BookingService {
     }
     /*@Cacheable(value = "booking", key = "#id")*/
     public Booking getBookingById(Long id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("Booking nt found: " + id));
     }
     /*@CacheEvict(value = {"bookings", "booking"}, allEntries = true)*/
     public Booking createBooking(Booking booking) {
