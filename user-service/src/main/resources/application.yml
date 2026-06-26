@@ -1,4 +1,9 @@
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwt-set-uri: http://[auth-server-url]/.well-known/jwks.json
   application:
     name: user-service
 
