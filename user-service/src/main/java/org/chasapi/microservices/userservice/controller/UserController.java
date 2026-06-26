@@ -1,6 +1,8 @@
 package org.chasapi.microservices.userservice.controller;
 
 import org.chasapi.microservices.userservice.Service.UserService;
+import org.chasapi.microservices.userservice.dto.UserRequest;
+import org.chasapi.microservices.userservice.dto.UserResponse;
 import org.chasapi.microservices.userservice.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,17 +27,18 @@ public class UserController {
 
     // GET user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
+                .map(userService::mapToResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     // POST register new user
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public ResponseEntity<UserResponse> register(@RequestBody UserRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.registerUser(user));
+                .body(userService.registerUser(request));
     }
 
     // DELETE user
