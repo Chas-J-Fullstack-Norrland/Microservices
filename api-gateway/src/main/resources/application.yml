@@ -1,33 +1,33 @@
+server:
+  port: 8080 # Port för Gateway
+
+# Eureka uppkoppling
+eureka:
+  client:
+    serviceUrl:
+      defaultzone: http://localhost:8761/eureka/ #Adress till service reg
+
 spring:
-  application:
-    name: api-gateway
-
-  config:
-    import: configserver:${CONFIG_SERVER_URI:http://localhost:8888}
-
   cloud:
-    config:
-      fail-fast: true
-      retry:
-        max-attempts: 10
-        initial-interval: 2000
-        multiplier: 1.5
-        max-interval: 8000
-
-    #Gateway för integration av swagger ui -O-
     gateway:
+      default-filters:
+        - TokenRelay #Fångar inkommande JWT och bifogar den i Authorization headern till separata tjänsten (booking-service)
       routes:
         - id: user-service
           uri: lb://user-service
           predicates:
             - Path=/user/**
-            
         - id: booking-service
           uri: lb://booking-service
           predicates:
             - Path=/booking/**
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
 
-#Pseudokod för swagger integration -O-
+# Aggregerar Swagger UI
 springdoc:
   swagger-ui:
     urls:
@@ -36,6 +36,7 @@ springdoc:
       - name: Booking Service
         url: /booking/v3/api-docs
 
+# Loggar fel vid nöd
 logging:
   level:
     org.springframework.cloud.config: DEBUG
