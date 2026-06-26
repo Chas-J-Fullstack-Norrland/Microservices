@@ -9,11 +9,13 @@ import java.time.LocalDate;
 
 public class BookingDto {
 
+    @NotNull
     private Long id;
 
     @NotNull
     private Long userId;
 
+    @NotNull
     @Min(0)
     private int timeSlot;
 
@@ -21,6 +23,7 @@ public class BookingDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate bookingDate;
 
+    @NotNull
     private String status;
 
 
