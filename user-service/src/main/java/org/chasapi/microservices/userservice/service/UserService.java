@@ -1,22 +1,23 @@
-package org.chasapi.microservices.userservice.Service;
+package org.chasapi.microservices.userservice.service;
 
 import org.chasapi.microservices.userservice.dto.UserRequest;
 import org.chasapi.microservices.userservice.dto.UserResponse;
 import org.chasapi.microservices.userservice.model.User;
 import org.chasapi.microservices.userservice.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
 
     private final UserRepository userRepository;
 
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public UserResponse registerUser(UserRequest request) {
         User user = new User();

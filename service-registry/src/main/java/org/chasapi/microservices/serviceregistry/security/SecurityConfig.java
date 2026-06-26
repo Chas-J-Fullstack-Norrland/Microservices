@@ -1,4 +1,4 @@
-package org.chasapi.microservices.serviceregistry.config;
+package org.chasapi.microservices.serviceregistry.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package org.chasapi.microservices.gatewayapi.config;
+package org.chasapi.microservices.gatewayapi.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

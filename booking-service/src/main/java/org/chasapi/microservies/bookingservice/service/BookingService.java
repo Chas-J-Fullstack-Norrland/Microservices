@@ -1,18 +1,22 @@
 package org.chasapi.microservies.bookingservice.service;
 
-import lombok.RequiredArgsConstructor;
 import org.chasapi.microservies.bookingservice.model.Booking;
 import org.chasapi.microservies.bookingservice.repository.BookingRepository;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
+@FeignClient(name = "user-service")
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+
+    public BookingService(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
+    }
 
     public Booking createBooking(Booking booking) {
         booking.setStatus("PENDING");

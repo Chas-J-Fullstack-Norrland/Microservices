@@ -21,14 +21,13 @@ public record BookingRequest(
         LocalDate bookingDate
 ) {
 
-    /**     * Convert this request DTO into a Booking entity.     * id and status are left null (service should set default status).     */
     public Booking toBookingDto() {
         return new Booking(
-                null,               // id (new)
+                null,
                 this.userId,
                 this.timeSlot,
                 this.bookingDate,
-                null                // status left null so service sets default
+                null
         );
 
     }

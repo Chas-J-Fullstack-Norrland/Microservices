@@ -1,4 +1,4 @@
-package org.chasapi.microservices.userservice.security;
+package org.chasapi.microservies.bookingservice.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +16,13 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // Tillåter åtkomst till Swagger och OpenAPI-definitioner utan inloggning för aggregering
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        // Kräver validerad JWT för alla affärslogik-anrop
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oath2 -> oath2
-                        .jwt(jwt -> {})
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> {}) // Aktiverar JWT-validering baserat på konfigurationen i booking-service.yml
                 );
 
         return http.build();

@@ -1,7 +1,7 @@
 package org.chasapi.microservices.userservice;
 
 
-import org.chasapi.microservices.userservice.Service.UserService;
+import org.chasapi.microservices.userservice.service.UserService;
 import org.chasapi.microservices.userservice.dto.UserRequest;
 import org.chasapi.microservices.userservice.dto.UserResponse;
 import org.chasapi.microservices.userservice.model.User;
