@@ -13,7 +13,7 @@ public record BookingRequest(
         @NotNull(message = "userId is required")
         Long userId,
 
-        @NotBlank(message = "time slot is required")
+
         int timeSlot,
 
         @NotNull(message = "bookingDate is required")
