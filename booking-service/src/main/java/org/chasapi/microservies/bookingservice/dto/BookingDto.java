@@ -22,13 +22,15 @@ public class BookingDto {
     @NotNull
     private Long userId;
 
+    @NotNull
     @Min(0)
     private int timeSlot;
 
-    @NotNull
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate bookingDate;
 
+    @NotNull
     private String status;
 
 
