@@ -1,5 +1,7 @@
 package org.chasapi.microservices.userservice.Service;
 
+import org.chasapi.microservices.userservice.dto.UserRequest;
+import org.chasapi.microservices.userservice.dto.UserResponse;
 import org.chasapi.microservices.userservice.model.User;
 import org.chasapi.microservices.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +18,18 @@ public class UserService {
     private final UserRepository userRepository;
 
 
-    public User registerUser(User user) {
-        user.setPassword(user.getPassword());
+    public UserResponse registerUser(UserRequest request) {
+        User user = new User();
+        user.setUsername(request.username());
+        user.setPassword(request.password()); // Remember to encode this in production!
         user.setRole("ROLE_USER");
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+        return mapToResponse(savedUser);
+    }
+
+    public UserResponse mapToResponse(User user) {
+        return new UserResponse(user.getId(), user.getUsername(), user.getRole());
     }
 
     public List<User> getAllUsers() {

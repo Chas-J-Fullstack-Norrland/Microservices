@@ -95,8 +95,11 @@ public class UserControllerTests {
     @Test
     void register_shouldReturn201AndPersistUser() throws Exception {
         String body = """
-                {"username": "john", "password": "secret"}
-                """;
+            {
+                "username": "john",
+                "password": "secretpassword"
+            }
+            """;
 
         mockMvc.perform(post("/api/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -104,7 +107,8 @@ public class UserControllerTests {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.username").value("john"))
-                .andExpect(jsonPath("$.role").value("ROLE_USER"));
+                .andExpect(jsonPath("$.role").value("ROLE_USER"))
+                .andExpect(jsonPath("$.password").doesNotExist()); // Verify password is NOT leaked
     }
 
 
@@ -126,4 +130,17 @@ public class UserControllerTests {
         mockMvc.perform(delete("/api/users/999"))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void getUserById_shouldReturnResponseDto() throws Exception {
+        // Manually save a user to the repository
+        User user = userRepository.save(new User(null, "alice", "encoded_pass", "ROLE_USER"));
+
+        mockMvc.perform(get("/api/users/" + user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("alice"))
+                .andExpect(jsonPath("$.role").value("ROLE_USER"))
+                .andExpect(jsonPath("$.password").doesNotExist()); // Ensure DTO is used
+    }
+
 }
