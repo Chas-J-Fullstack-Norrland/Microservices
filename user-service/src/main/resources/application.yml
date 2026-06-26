@@ -8,7 +8,7 @@ spring:
     name: user-service
 
   config:
-    import: configserver:${CONFIG_SERVER_URI:http://localhost:8888}
+    import: "optional:configserver:http://localhost:8888"
 
   cloud:
     config:
