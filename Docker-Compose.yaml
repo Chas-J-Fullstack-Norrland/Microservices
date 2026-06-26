@@ -1,5 +1,4 @@
 services:
-
   postgres-booking:
     image: postgres
     container_name: postgres-booking
@@ -7,7 +6,7 @@ services:
       POSTGRES_DB: booking_service
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      PGDATA: /data/postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./databases/postgres-booking:/var/lib/postgresql/data
     expose:
@@ -24,7 +23,7 @@ services:
       POSTGRES_DB: user_service
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      PGDATA: /data/postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./databases/postgres-user:/var/lib/postgresql/data
     expose:
@@ -33,7 +32,6 @@ services:
       - "5432:5432"
     command: -p 5432
     restart: always
-
 
   service-registry:
     image: microservices/service-registry
@@ -44,41 +42,50 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
 
   config-server:
-    image: microservices/config-server:latest
+    image: microservices/config-server
     container_name: config-server
     ports:
       - "8888:8888"
     environment:
       - SPRING_PROFILES_ACTIVE=native
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
     depends_on:
       - service-registry
 
   api-gateway:
     image: microservices/api-gateway
+    container_name: api-gateway
     ports:
       - "8080:8080"
-    expose:
-      - "8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_URI=http://config-server:8888
+    depends_on:
+      - config-server
+      - service-registry
 
   booking-service:
     image: microservices/booking-service
     container_name: booking-service
+    ports:
+      - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_URI=http://config-server:8888
     depends_on:
-      - api-gateway
+      - config-server
+      - service-registry
+      - postgres-booking
 
   user-service:
     image: microservices/user-service
     container_name: user-service
+    ports:
+      - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_URI=http://config-server:8888
     depends_on:
-      - api-gateway
-
+      - config-server
+      - service-registry
+      - postgres-user

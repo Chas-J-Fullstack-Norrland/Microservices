@@ -26,8 +26,6 @@ subprojects {
     }
 
     dependencies{
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
     }
 
     plugins.withId('org.springframework.boot'){

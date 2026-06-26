@@ -26,8 +26,15 @@ public class Booking {
     @Column(nullable = false)
     private String status;
 
-    public Booking(Object o, @NotNull(message = "userId is required") Long userId, int timeSlot, @NotNull(message = "bookingDate is required") @FutureOrPresent(message = "bookingDate cannot be in the past") LocalDate bookingDate, Object o1) {
+    public Booking(Long id, Long userId, int timeSlot, LocalDate bookingDate, String status) {
+        this.id = id;
+        this.userId = userId;
+        this.timeSlot = timeSlot;
+        this.bookingDate = bookingDate;
+        this.status = status;
     }
+
+    public Booking(){}
 
     // Getters och setters för de som inte använder lambok
     public Long getId() {

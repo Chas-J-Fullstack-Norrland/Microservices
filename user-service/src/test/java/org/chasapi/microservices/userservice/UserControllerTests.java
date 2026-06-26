@@ -5,15 +5,14 @@ import org.chasapi.microservices.userservice.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -56,7 +55,7 @@ public class UserControllerTests {
 
     @Test
     void getAllUsers_whenEmpty_shouldReturn200WithEmptyList() throws Exception {
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/api/users").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -66,7 +65,7 @@ public class UserControllerTests {
         userRepository.save(new User(null, "alice", "pass", "ROLE_USER"));
         userRepository.save(new User(null, "bob",   "pass", "ROLE_ADMIN"));
 
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/api/users").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[*].username", containsInAnyOrder("alice", "bob")));
@@ -86,14 +85,14 @@ public class UserControllerTests {
 
     @Test
     void getUserById_whenNotExists_shouldReturn404() throws Exception {
-        mockMvc.perform(get("/api/users/999"))
+        mockMvc.perform(get("/api/users/999").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isNotFound());
     }
 
-    // ── POST /api/users/register ────────────────────────────────────────────────
+    // ── POST /api/users/createUser ────────────────────────────────────────────────
 
     @Test
-    void register_shouldReturn201AndPersistUser() throws Exception {
+    void createUser_shouldReturn201AndPersistUser() throws Exception {
         String body = """
             {
                 "username": "john",
@@ -102,6 +101,7 @@ public class UserControllerTests {
             """;
 
         mockMvc.perform(post("/api/users/register")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
@@ -110,8 +110,6 @@ public class UserControllerTests {
                 .andExpect(jsonPath("$.role").value("ROLE_USER"))
                 .andExpect(jsonPath("$.password").doesNotExist()); // Verify password is NOT leaked
     }
-
-
 
     // ── DELETE /api/users/{id} ──────────────────────────────────────────────────
 
@@ -127,7 +125,7 @@ public class UserControllerTests {
 
     @Test
     void deleteUser_nonExistentId_shouldReturn204() throws Exception {
-        mockMvc.perform(delete("/api/users/999"))
+        mockMvc.perform(delete("/api/users/999").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isNoContent());
     }
 
