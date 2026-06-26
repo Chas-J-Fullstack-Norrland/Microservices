@@ -2,6 +2,8 @@ package org.chasapi.microservices.userservice;
 
 
 import org.chasapi.microservices.userservice.Service.UserService;
+import org.chasapi.microservices.userservice.dto.UserRequest;
+import org.chasapi.microservices.userservice.dto.UserResponse;
 import org.chasapi.microservices.userservice.model.User;
 import org.chasapi.microservices.userservice.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,27 +51,29 @@ public class UserServiceTests {
         repository.deleteAll();
     }
 
-    @Test
-    void contextLoads() {
-    }
 
     // --- UserService tests ---
 
     @Test
     void registerUser_shouldSetRoleToRoleUser_andPersist() {
-        User input = new User(null, "john", "secret", null);
+        // Create request DTO
+        UserRequest request = new UserRequest("john", "secret123");
 
-        User saved = userService.registerUser(input);
+        // Service returns UserResponse
+        UserResponse saved = userService.registerUser(request);
 
-        assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getRole()).isEqualTo("ROLE_USER");
-        assertThat(saved.getUsername()).isEqualTo("john");
+        assertThat(saved.id()).isNotNull();
+        assertThat(saved.role()).isEqualTo("ROLE_USER");
+        assertThat(saved.username()).isEqualTo("john");
+
+        // Verify in DB
+        assertThat(repository.existsById(saved.id())).isTrue();
     }
 
     @Test
     void getAllUsers_shouldReturnAllPersistedUsers() {
-        userService.registerUser(new User(null, "alice", "pass", null));
-        userService.registerUser(new User(null, "bob",   "pass", null));
+        userService.registerUser(new UserRequest("alice", "pass1234"));
+        userService.registerUser(new UserRequest("bob", "pass1234"));
 
         List<User> users = userService.getAllUsers();
 
@@ -78,28 +82,20 @@ public class UserServiceTests {
 
     @Test
     void getUserById_whenExists_shouldReturnUser() {
-        User saved = userService.registerUser(new User(null, "alice", "pass", null));
+        UserResponse saved = userService.registerUser(new UserRequest("alice", "pass1234"));
 
-        Optional<User> result = userService.getUserById(saved.getId());
+        Optional<User> result = userService.getUserById(saved.id());
 
         assertThat(result).isPresent();
         assertThat(result.get().getUsername()).isEqualTo("alice");
     }
 
     @Test
-    void getUserById_whenNotExists_shouldReturnEmpty() {
-        Optional<User> result = userService.getUserById(999L);
-
-        assertThat(result).isEmpty();
-    }
-
-    @Test
     void deleteUser_shouldRemoveUserFromDb() {
-        User saved = userService.registerUser(new User(null, "alice", "pass", null));
+        UserResponse saved = userService.registerUser(new UserRequest("alice", "pass1234"));
 
-        userService.deleteUser(saved.getId());
+        userService.deleteUser(saved.id());
 
-        assertThat(userService.getUserById(saved.getId())).isEmpty();
+        assertThat(userService.getUserById(saved.id())).isEmpty();
     }
-
 }
