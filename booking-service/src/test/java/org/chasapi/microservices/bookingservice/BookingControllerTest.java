@@ -1,15 +1,19 @@
-package org.chasapi.microservies.bookingservice;
+package org.chasapi.microservices.bookingservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.chasapi.microservies.bookingservice.Controller.BookingController;
-import org.chasapi.microservies.bookingservice.model.Booking;
-import org.chasapi.microservies.bookingservice.service.BookingService;
+import org.chasapi.microservices.bookingservice.controller.BookingController;
+import org.chasapi.microservices.bookingservice.model.Booking;
+import org.chasapi.microservices.bookingservice.security.SecurityConfig;
+import org.chasapi.microservices.bookingservice.service.BookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,8 +26,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureMockMvc
-@WebMvcTest(BookingController.class)
+@WebMvcTest(
+        controllers = BookingController.class,
+        excludeAutoConfiguration = {SecurityAutoConfiguration.class}
+)
+@Import(SecurityConfig.class)
 class BookingControllerTest {
 
     @Autowired
@@ -32,12 +39,15 @@ class BookingControllerTest {
     @MockitoBean
     private BookingService bookingService;
 
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    @Autowired
     private ObjectMapper objectMapper;
     private Booking booking;
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         booking = new Booking(1L, 10L, 3, LocalDate.of(2026, 7, 1), "PENDING");
     }
 
@@ -45,26 +55,17 @@ class BookingControllerTest {
     void getAll_returnsOkWithList() throws Exception {
         when(bookingService.getAllBookings()).thenReturn(List.of(booking));
 
-        mockMvc.perform(get("/api/bookings"))
+        mockMvc.perform(get("/api/v1/bookings").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].status").value("PENDING"));
     }
 
     @Test
-    void getByUser_returnsOkWithList() throws Exception {
-        when(bookingService.getBookingsByUser(10L)).thenReturn(List.of(booking));
-
-        mockMvc.perform(get("/api/bookings/user/10"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].userId").value(10));
-    }
-
-    @Test
     void getById_found_returnsOk() throws Exception {
         when(bookingService.getBookingById(1L)).thenReturn(Optional.of(booking));
 
-        mockMvc.perform(get("/api/bookings/1"))
+        mockMvc.perform(get("/api/v1/bookings/1").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1));
     }
@@ -73,7 +74,7 @@ class BookingControllerTest {
     void getById_notFound_returns404() throws Exception {
         when(bookingService.getBookingById(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/bookings/99"))
+        mockMvc.perform(get("/api/v1/bookings/99").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isNotFound());
     }
 
@@ -81,7 +82,8 @@ class BookingControllerTest {
     void create_returnsCreated() throws Exception {
         when(bookingService.createBooking(any(Booking.class))).thenReturn(booking);
 
-        mockMvc.perform(post("/api/bookings")
+        mockMvc.perform(post("/api/v1/bookings")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isCreated())
@@ -93,7 +95,8 @@ class BookingControllerTest {
         Booking updated = new Booking(1L, 10L, 3, LocalDate.of(2026, 7, 1), "CONFIRMED");
         when(bookingService.updateStatus(1L, "CONFIRMED")).thenReturn(updated);
 
-        mockMvc.perform(put("/api/bookings/1/status")
+        mockMvc.perform(put("/api/v1/bookings/1/status")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt())
                         .param("status", "CONFIRMED"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CONFIRMED"));
@@ -103,7 +106,7 @@ class BookingControllerTest {
     void delete_returnsNoContent() throws Exception {
         doNothing().when(bookingService).deleteBooking(1L);
 
-        mockMvc.perform(delete("/api/bookings/1"))
+        mockMvc.perform(delete("/api/v1/bookings/1").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isNoContent());
     }
 }

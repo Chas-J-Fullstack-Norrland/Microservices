@@ -22,7 +22,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false",
+        "spring.jpa.hibernate.ddl-auto=update"
+})
 @Testcontainers
 @ActiveProfiles("test")
 public class UserServiceTests {
@@ -38,6 +42,7 @@ public class UserServiceTests {
         registry.add("spring.datasource.url", dbContainer::getJdbcUrl);
         registry.add("spring.datasource.username", dbContainer::getUsername);
         registry.add("spring.datasource.password", dbContainer::getPassword);
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
     }
 
     @Autowired
@@ -50,7 +55,6 @@ public class UserServiceTests {
     void cleanUp() {
         repository.deleteAll();
     }
-
 
     // --- UserService tests ---
 

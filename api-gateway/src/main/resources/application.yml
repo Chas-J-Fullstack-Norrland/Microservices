@@ -5,7 +5,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultzone: http://localhost:8761/eureka/ #Adress till service reg
+      defaultZone: http://localhost:8761/eureka/ #Adress till service reg
 
 spring:
   cloud:
@@ -16,11 +16,17 @@ spring:
         - id: user-service
           uri: lb://user-service
           predicates:
-            - Path=/user/**
+            # Sökvägarna korrigerade för att matcha kontrollernas faktiska endpoints
+            - Path=/api/users/**, /user-service/v3/api-docs
+          filters:
+            - RewritePath=/user-service/v3/api-docs, /v3/api-docs
+
         - id: booking-service
           uri: lb://booking-service
           predicates:
-            - Path=/booking/**
+            - Path=/api/bookings/**, /booking-service/v3/api-docs
+          filters:
+            - RewritePath=/booking-service/v3/api-docs, /v3/api-docs
   security:
     oauth2:
       resourceserver:

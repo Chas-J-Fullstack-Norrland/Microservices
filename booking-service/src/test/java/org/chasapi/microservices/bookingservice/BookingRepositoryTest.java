@@ -1,11 +1,12 @@
-package org.chasapi.microservies.bookingservice;
+package org.chasapi.microservices.bookingservice;
 
-import org.chasapi.microservies.bookingservice.model.Booking;
-import org.chasapi.microservies.bookingservice.repository.BookingRepository;
+import org.chasapi.microservices.bookingservice.model.Booking;
+import org.chasapi.microservices.bookingservice.repository.BookingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -18,14 +19,21 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@DataJpaTest(properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false",
+        "spring.security.oauth2.resourceserver.jwt.secret-key=secret-key-here",
+        "spring.jpa.hibernate.ddl-auto=update",
+        "spring.jpa.show-sql=true"
+})
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 @ActiveProfiles("test")
 public class BookingRepositoryTest {
 
     @Container
     static PostgreSQLContainer<?> dbContainer = new PostgreSQLContainer<>("postgres:latest")
-            .withDatabaseName("user-service")
+            .withDatabaseName("booking-service-test")
             .withUsername("admin")
             .withPassword("password");
 
@@ -105,6 +113,6 @@ public class BookingRepositoryTest {
         Booking updated = bookingRepository.save(saved);
 
         assertThat(updated.getStatus()).isEqualTo("CONFIRMED");
-        assertThat(bookingRepository.findAll()).hasSize(1); // no duplicate created
+        assertThat(bookingRepository.findAll()).hasSize(1);
     }
 }

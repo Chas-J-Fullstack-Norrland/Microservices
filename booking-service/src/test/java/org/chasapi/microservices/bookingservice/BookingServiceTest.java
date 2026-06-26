@@ -1,10 +1,10 @@
-package org.chasapi.microservies.bookingservice;
+package org.chasapi.microservices.bookingservice;
 
 
 
-import org.chasapi.microservies.bookingservice.model.Booking;
-import org.chasapi.microservies.bookingservice.repository.BookingRepository;
-import org.chasapi.microservies.bookingservice.service.BookingService;
+import org.chasapi.microservices.bookingservice.model.Booking;
+import org.chasapi.microservices.bookingservice.repository.BookingRepository;
+import org.chasapi.microservices.bookingservice.service.BookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

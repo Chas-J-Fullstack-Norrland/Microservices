@@ -1,4 +1,4 @@
-package org.chasapi.microservies.bookingservice.dto;
+package org.chasapi.microservices.bookingservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

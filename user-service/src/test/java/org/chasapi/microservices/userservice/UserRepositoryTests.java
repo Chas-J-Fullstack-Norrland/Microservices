@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 @ActiveProfiles("test")
-public class UserRepositoryTest {
+public class UserRepositoryTests {
 
 
     @Container
@@ -118,6 +118,3 @@ public class UserRepositoryTest {
         });
     }
 }
-
-
-

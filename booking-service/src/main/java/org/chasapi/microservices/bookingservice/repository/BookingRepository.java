@@ -1,6 +1,6 @@
-package org.chasapi.microservies.bookingservice.repository;
+package org.chasapi.microservices.bookingservice.repository;
 
-import org.chasapi.microservies.bookingservice.model.Booking;
+import org.chasapi.microservices.bookingservice.model.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

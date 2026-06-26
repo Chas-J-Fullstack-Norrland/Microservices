@@ -1,4 +1,4 @@
-package org.chasapi.microservies.bookingservice.model;
+package org.chasapi.microservices.bookingservice.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;

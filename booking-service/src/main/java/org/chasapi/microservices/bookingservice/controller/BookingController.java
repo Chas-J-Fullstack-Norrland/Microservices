@@ -1,13 +1,13 @@
-package org.chasapi.microservies.bookingservice.Controller;
+package org.chasapi.microservices.bookingservice.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
-import org.chasapi.microservies.bookingservice.dto.BookingRequest;
-import org.chasapi.microservies.bookingservice.dto.BookingResponse;
-import org.chasapi.microservies.bookingservice.model.Booking;
-import org.chasapi.microservies.bookingservice.service.BookingService;
+import org.chasapi.microservices.bookingservice.dto.BookingRequest;
+import org.chasapi.microservices.bookingservice.dto.BookingResponse;
+import org.chasapi.microservices.bookingservice.model.Booking;
+import org.chasapi.microservices.bookingservice.service.BookingService;
 import org.springframework.http.HttpStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +59,7 @@ public class BookingController {
         return ResponseEntity.ok(responses);
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}")
     @Operation(summary = "Hämtar alla bokningar på en användares id", description = "Returnerar alla existerande bokningar på en användare")
     public ResponseEntity<List<BookingResponse>> getByUser(@PathVariable Long userId) {
         List<Booking> bookings = bookingService.getBookingsByUser(userId);

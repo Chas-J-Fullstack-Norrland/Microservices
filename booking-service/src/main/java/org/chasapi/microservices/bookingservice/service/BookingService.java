@@ -1,7 +1,7 @@
-package org.chasapi.microservies.bookingservice.service;
+package org.chasapi.microservices.bookingservice.service;
 
-import org.chasapi.microservies.bookingservice.model.Booking;
-import org.chasapi.microservies.bookingservice.repository.BookingRepository;
+import org.chasapi.microservices.bookingservice.model.Booking;
+import org.chasapi.microservices.bookingservice.repository.BookingRepository;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 

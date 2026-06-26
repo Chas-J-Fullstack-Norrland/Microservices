@@ -1,20 +1,20 @@
-server:
-  port: 8081
-
 spring:
+  application:
+    name: user-service
+
   datasource:
-    url: jdbc:h2:mem:userdb
+    url: jdbc:h2:mem:bookingdb
     driverClassName: org.h2.Driver
     username: sa
     password:
-  jpa:
-    hibernate:
-      ddl-auto: update
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          secret-key: secret-key-here
+    jpa:
+      hibernate:
+        ddl-auto: update
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            secret-key: secret-key-here
 
 # Eureka uppkoppling
 eureka:
@@ -22,17 +22,13 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 
-# Loggning för Debugging
-logging:
-  level:
-    org.springframework.cloud.config: DEBUG
-    org.springframework.retry: DEBUG
-    org.springframework.boot.context.config: DEBUG
-
-# Swagger ui -_- user-service
+# Swagger ui -_- booking-service
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: alpha
+
+server:
+  port: 8081

@@ -1,10 +1,10 @@
-package org.chasapi.microservies.bookingservice.dto;
+package org.chasapi.microservices.bookingservice.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
 
 
 import jakarta.validation.constraints.NotNull;
-import org.chasapi.microservies.bookingservice.model.Booking;
+import org.chasapi.microservices.bookingservice.model.Booking;
 
 
 import java.time.LocalDate;
