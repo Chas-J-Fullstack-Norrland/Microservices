@@ -7,9 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -19,25 +18,22 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false",
+        "spring.jpa.hibernate.ddl-auto=update"
+})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 @ActiveProfiles("test")
 public class UserRepositoryTests {
 
-
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:latest")
+    @ServiceConnection
+    static PostgreSQLContainer<?> dbContainer = new PostgreSQLContainer<>("postgres:latest")
             .withDatabaseName("user-service-test")
             .withUsername("admin")
             .withPassword("password");
-
-    @DynamicPropertySource
-    static void registerProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
 
     @Autowired
     private UserRepository userRepository;
@@ -48,8 +44,14 @@ public class UserRepositoryTests {
     }
 
     @Test
+    void verifyInitializationAndDatabaseConnection() {
+        long count = userRepository.count();
+        assertThat(count).isGreaterThanOrEqualTo(0);
+    }
+
+    @Test
     void save_shouldPersistUser() {
-        User user = new User(null, "alice", "pass", "ROLE_USER");
+        User user = new User("alice", "pass", "ROLE_USER");
         User saved = userRepository.save(user);
 
         assertThat(saved.getId()).isNotNull();
@@ -58,8 +60,8 @@ public class UserRepositoryTests {
 
     @Test
     void findAll_shouldReturnAllPersistedUsers() {
-        userRepository.save(new User(null, "alice", "pass", "ROLE_USER"));
-        userRepository.save(new User(null, "bob",   "pass", "ROLE_ADMIN"));
+        userRepository.save(new User("alice", "pass", "ROLE_USER"));
+        userRepository.save(new User("bob",   "pass", "ROLE_ADMIN"));
 
         List<User> users = userRepository.findAll();
 
@@ -68,7 +70,7 @@ public class UserRepositoryTests {
 
     @Test
     void findById_whenExists_shouldReturnUser() {
-        User saved = userRepository.save(new User(null, "alice", "pass", "ROLE_USER"));
+        User saved = userRepository.save(new User("alice", "pass", "ROLE_USER"));
 
         Optional<User> result = userRepository.findById(saved.getId());
 
@@ -85,7 +87,7 @@ public class UserRepositoryTests {
 
     @Test
     void findByUsername_whenExists_shouldReturnUser() {
-        userRepository.save(new User(null, "alice", "pass", "ROLE_USER"));
+        userRepository.save(new User("alice", "pass", "ROLE_USER"));
 
         Optional<User> result = userRepository.findByUsername("alice");
 
@@ -102,7 +104,7 @@ public class UserRepositoryTests {
 
     @Test
     void deleteById_shouldRemoveUser() {
-        User saved = userRepository.save(new User(null, "alice", "pass", "ROLE_USER"));
+        User saved = userRepository.save(new User("alice", "pass", "ROLE_USER"));
 
         userRepository.deleteById(saved.getId());
 
@@ -111,10 +113,10 @@ public class UserRepositoryTests {
 
     @Test
     void save_duplicateUsername_shouldThrowException() {
-        userRepository.save(new User(null, "alice", "pass1", "ROLE_USER"));
+        userRepository.save(new User("alice", "pass1", "ROLE_USER"));
 
         org.junit.jupiter.api.Assertions.assertThrows(Exception.class, () -> {
-            userRepository.saveAndFlush(new User(null, "alice", "pass2", "ROLE_USER"));
+            userRepository.saveAndFlush(new User("alice", "pass2", "ROLE_USER"));
         });
     }
 }

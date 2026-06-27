@@ -1,35 +1,46 @@
 package org.chasapi.microservices.userservice;
 
+import org.chasapi.microservices.userservice.controller.UserController;
+import org.chasapi.microservices.userservice.dto.UserRequest;
+import org.chasapi.microservices.userservice.dto.UserResponse;
 import org.chasapi.microservices.userservice.model.User;
 import org.chasapi.microservices.userservice.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import org.chasapi.microservices.userservice.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, properties = {
         "spring.cloud.config.enabled=false",
         "eureka.client.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=update"
+        "spring.jpa.hibernate.ddl-auto=create-drop"
 })
 @AutoConfigureMockMvc
 @Testcontainers
@@ -37,71 +48,81 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class UserControllerTests {
 
-    @MockitoBean
-    private JwtDecoder jwtDecoder;
-
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @MockitoBean
-    UserRepository userRepository;
+    private JwtDecoder jwtDecoder;
 
     @Container
+    @ServiceConnection
     static PostgreSQLContainer<?> dbContainer = new PostgreSQLContainer<>("postgres:latest")
-            .withDatabaseName("user-service")
+            .withDatabaseName("user-service-test")
             .withUsername("admin")
             .withPassword("password");
 
-    @DynamicPropertySource
-    static void registerProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", dbContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", dbContainer::getUsername);
-        registry.add("spring.datasource.password", dbContainer::getPassword);
-    }
-
-    @BeforeEach
-    void cleanUp() {
-        userRepository.deleteAll();
-    }
-
-    // ── GET /api/users ──────────────────────────────────────────────────────────
+    // ── GET /api/v1/users ───────────────────────────────────────────────────────
 
     @Test
     void getAllUsers_whenEmpty_shouldReturn200WithEmptyList() throws Exception {
-        mockMvc.perform(get("/api/v1/users").with(SecurityMockMvcRequestPostProcessors.jwt()))
+        mockMvc.perform(get("/api/v1/users")
+                .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
     void getAllUsers_shouldReturn200WithAllUsers() throws Exception {
-        userRepository.save(new User(null, "alice", "pass", "ROLE_USER"));
-        userRepository.save(new User(null, "bob",   "pass", "ROLE_ADMIN"));
+        // Förbereder fysisk data i databasen
+        User user1 = new User();
+        user1.setUsername("alice");
+        user1.setPassword("pass");
+        user1.setRole("ROLE_USER");
+        userRepository.save(user1);
+
+        User user2 = new User();
+        user2.setUsername("bob");
+        user2.setPassword("pass");
+        user2.setRole("ROLE_ADMIN");
+        userRepository.save(user2);
 
         mockMvc.perform(get("/api/v1/users").with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[*].username", containsInAnyOrder("alice", "bob")));
     }
 
-    // ── GET /api/users/{id} ─────────────────────────────────────────────────────
+    // ── GET /api/v1/users/{id} ──────────────────────────────────────────────────
 
     @Test
     void getUserById_whenExists_shouldReturn200() throws Exception {
-        User saved = userRepository.save(new User(null, "alice", "pass", "ROLE_USER"));
+        User user = new User();
+        user.setUsername("alice");
+        user.setPassword("pass");
+        user.setRole("ROLE_USER");
+        User savedUser = userRepository.save(user);
+        Long generatedId = savedUser.getId();
 
-        mockMvc.perform(get("/api/v1/users/" + saved.getId()).with(SecurityMockMvcRequestPostProcessors.jwt()))
+        mockMvc.perform(get("/api/v1/users/" + generatedId)
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.role").value("ROLE_USER"));
+                .andExpect(jsonPath("$.role").value("ROLE_USER"))
+                .andExpect(jsonPath("$.password").doesNotExist());
     }
+
     @Test
     void getUserById_whenNotExists_shouldReturn404() throws Exception {
-        mockMvc.perform(get("/api/v1/users/999").with(SecurityMockMvcRequestPostProcessors.jwt()))
+        mockMvc.perform(get("/api/v1/users/9999").with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
-    // ── POST /api/users/createUser ────────────────────────────────────────────────
+    // ── POST /api/v1/users ──────────────────────────────────────────────────────
 
     @Test
     void createUser_shouldReturn201AndPersistUser() throws Exception {
@@ -112,45 +133,44 @@ public class UserControllerTests {
             }
             """;
 
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/users")
                         .with(SecurityMockMvcRequestPostProcessors.jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.username").value("john"))
                 .andExpect(jsonPath("$.role").value("ROLE_USER"))
-                .andExpect(jsonPath("$.password").doesNotExist()); // Verify password is NOT leaked
+                .andExpect(jsonPath("$.password").doesNotExist());
+
+        Optional<User> savedUser = userRepository.findByUsername("john");
+        assertThat(savedUser).isPresent();
+        assertThat(savedUser.get().getRole()).isEqualTo("ROLE_USER");
     }
 
-    // ── DELETE /api/users/{id} ──────────────────────────────────────────────────
+    // ── DELETE /api/v1/users/{id} ───────────────────────────────────────────────
 
     @Test
     void deleteUser_shouldReturn204AndRemoveFromDb() throws Exception {
-        User saved = userRepository.save(new User(null, "alice", "pass", "ROLE_USER"));
+        User user = new User();
+        user.setUsername("charlie");
+        user.setPassword("pass");
+        user.setRole("ROLE_USER");
+        User savedUser = userRepository.save(user);
+        Long generatedId = savedUser.getId();
 
-        mockMvc.perform(delete("/api/v1/users/" + saved.getId()).with(SecurityMockMvcRequestPostProcessors.jwt()))
+        mockMvc.perform(delete("/api/v1/users/" + generatedId).with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andDo(print())
                 .andExpect(status().isNoContent());
 
-        assert userRepository.findById(saved.getId()).isEmpty();
+        assertThat(userRepository.findById(generatedId)).isEmpty();
     }
 
     @Test
     void deleteUser_nonExistentId_shouldReturn204() throws Exception {
-        mockMvc.perform(delete("/api/v1/users/999").with(SecurityMockMvcRequestPostProcessors.jwt()))
+        mockMvc.perform(delete("/api/v1/users/9999").with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andExpect(status().isNoContent());
     }
-
-    @Test
-    void getUserById_shouldReturnResponseDto() throws Exception {
-        User user = userRepository.save(new User(null, "alice", "encoded_pass", "ROLE_USER"));
-
-        mockMvc.perform(get("/api/v1/users/" + user.getId()).with(SecurityMockMvcRequestPostProcessors.jwt()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.role").value("ROLE_USER"))
-                .andExpect(jsonPath("$.password").doesNotExist());
-    }
-
 }
 

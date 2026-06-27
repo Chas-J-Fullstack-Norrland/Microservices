@@ -21,8 +21,7 @@ public class User {
 
     private String role; // "ROLE_USER" or "ROLE_ADMIN"
 
-    public User(Long id, String username, String password, String role) {
-        this.id = id;
+    public User(String username, String password, String role) {
         this.username = username;
         this.password = password;
         this.role = role;

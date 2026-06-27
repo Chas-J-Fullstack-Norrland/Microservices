@@ -2,8 +2,12 @@ spring:
   cloud:
     config:
       enabled: false
-  config:
-    import: ""
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
+
 eureka:
   client:
     enabled: false
