@@ -9,25 +9,24 @@ spring:
           predicates:
             - Path=/user-service/v3/api-docs/**, /user-service/v3/api-docs
           filters:
-            - StripPrefix=1
+            - RewritePath=/user-service(?<segment>.*), $\{segment}
 
-            - id: booking-service-swagger
-              uri: lb://booking-service
-              predicates:
-                - Path=/booking-service/v3/api-docs/**, /booking-service/v3/api-docs
-              filters:
-                - RewritePath=/booking-service(?<segment>.*), $\{segment}
+        - id: booking-service-swagger
+          uri: lb://booking-service
+          predicates:
+            - Path=/booking-service/v3/api-docs/**, /booking-service/v3/api-docs
+          filters:
+            - RewritePath=/booking-service(?<segment>.*), $\{segment}
 
-            # 2. Affärslogikrutter (Riktar den faktiska API-trafiken)
-            - id: user-service-api
-              uri: lb://user-service
-              predicates:
-                - Path=/api/v1/users/**
+        - id: user-service-api
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
 
-            - id: booking-service-api
-              uri: lb://booking-service
-              predicates:
-                - Path=/api/v1/bookings/**
+        - id: booking-service-api
+          uri: lb://booking-service
+          predicates:
+            - Path=/api/v1/bookings/**
   security:
     oauth2:
       resourceserver:
@@ -44,7 +43,6 @@ eureka:
 springdoc:
   api-docs:
     enabled: true
-    path: /v3/api-docs
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
@@ -57,8 +55,15 @@ springdoc:
 server:
   port: 8080 # Port för Gateway
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "gateway, health"
+  endpoint:
+    gateway:
+      enabled: true
+
 logging:
   level:
     org.springframework.cloud.gateway: TRACE
-    org.springframework.http.server.reactive: DEBUG
-    org.springframework.web.reactive: DEBUG

@@ -26,7 +26,8 @@ public class SecurityConfig {
                                 "/user-service/v3/api-docs/**",
                                 "/booking-service/v3/api-docs",
                                 "/booking-service/v3/api-docs/**",
-                                "/eureka/**"
+                                "/eureka/**",
+                                "/actuator/**"
                         ).permitAll()
                         // All annan trafik kräver validerad JWT
                         .anyExchange().authenticated()
