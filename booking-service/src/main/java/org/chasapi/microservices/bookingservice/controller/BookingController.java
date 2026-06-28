@@ -8,6 +8,7 @@ import org.chasapi.microservices.bookingservice.dto.BookingRequest;
 import org.chasapi.microservices.bookingservice.dto.BookingResponse;
 import org.chasapi.microservices.bookingservice.model.Booking;
 import org.chasapi.microservices.bookingservice.service.BookingService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
+    @Cacheable(value = "bookings", key = "#id")
     @Operation(summary = "Hämta en specifik bokning", description = "Returnerar en existerande bokning via ID.")
     public ResponseEntity<BookingResponse> getBooking(@PathVariable Long id) {
         return bookingService.getBookingById(id)

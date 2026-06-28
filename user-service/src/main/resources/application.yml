@@ -3,18 +3,23 @@ spring:
     name: user-service
 
   datasource:
-    url: jdbc:h2:mem:bookingdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://postgres-user:5432/user_service
+    driver-class-name: org.postgresql.Driver
+    username: admin
+    password: password
     jpa:
       hibernate:
         ddl-auto: update
-    security:
-      oauth2:
-        resourceserver:
-          jwt:
-            secret-key: secret-key-here
+      spring:
+        jpa:
+          properties:
+            hibernate:
+              dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
 
 # Eureka uppkoppling
 eureka:

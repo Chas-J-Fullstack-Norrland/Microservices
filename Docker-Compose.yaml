@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
     ports:
-      - "5431:5432"
+      - "5433:5433"
     restart: always
 
   postgres-user:
@@ -22,57 +22,90 @@ services:
     restart: always
 
   service-registry:
-    image: microservices/service-registry
+    build:
+      context: ./service-registry
     container_name: service-registry
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z localhost 8761 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "8761:8761"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
 
   config-server:
-    image: microservices/config-server
+    build:
+      context: ./config-server
     container_name: config-server
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "8888:8888"
     environment:
       - SPRING_PROFILES_ACTIVE=native
     depends_on:
-      - service-registry
+      service-registry:
+        condition: service_healthy
 
   api-gateway:
-    image: microservices/api-gateway
+    build:
+      context: ./api-gateway
     container_name: api-gateway
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8888
     depends_on:
-      - config-server
-      - service-registry
+        config-server:
+          condition: service_healthy
 
   booking-service:
-    image: microservices/booking-service
+    build:
+      context: ./booking-service
     container_name: booking-service
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8888
     depends_on:
-      - config-server
-      - service-registry
-      - postgres-booking
+      config-server:
+        condition: service_healthy
+      postgres-booking:
+        condition: service_started
 
   user-service:
-    image: microservices/user-service
+    build:
+      context: ./user-service
     container_name: user-service
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8888
     depends_on:
-      - config-server
-      - service-registry
-      - postgres-user
+      config-server:
+        condition: service_healthy
+      postgres-user:
+        condition: service_started

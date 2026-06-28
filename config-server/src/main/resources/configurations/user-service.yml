@@ -1,4 +1,38 @@
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: jdbc:postgresql://postgres-user:5432/user_service
+    driver-class-name: org.postgresql.Driver
+    username: admin
+    password: password
+    jpa:
+      hibernate:
+        ddl-auto: update
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            secret-key: secret-key-here
+
+# Eureka uppkoppling
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://service-registry:8761/eureka/
+
+# Swagger ui -_- booking-service
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+
+server:
+  forward-headers-strategy: framework
+  port: 8081

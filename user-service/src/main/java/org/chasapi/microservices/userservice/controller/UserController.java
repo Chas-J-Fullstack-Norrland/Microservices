@@ -9,6 +9,7 @@ import org.chasapi.microservices.userservice.service.UserService;
 import org.chasapi.microservices.userservice.dto.UserRequest;
 import org.chasapi.microservices.userservice.dto.UserResponse;
 import org.chasapi.microservices.userservice.model.User;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ public class UserController {
 
     // Hämta användare med id
     @GetMapping("/{id}")
+    @Cacheable(value = "users", key = "#id")
     @Operation(summary = "Hämta användare", description = "Returnerar en specifik användare via dess ID. Lösenord exponeras inte i dokumentationen baserat på tidigare krav.")
     @ApiResponse(responseCode = "200", description = "Användare hittades",
             content = @Content(schema = @Schema(implementation = User.class)))

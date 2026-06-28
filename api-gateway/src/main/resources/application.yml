@@ -1,5 +1,39 @@
-server:
-  port: 8080 # Port för Gateway
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay #Fångar inkommande JWT och bifogar den i Authorization headern till separata tjänsten (booking-service)
+      routes:
+        - id: user-service-swagger
+          uri: lb://user-service
+          predicates:
+            - Path=/user-service/v3/api-docs/**, /user-service/v3/api-docs
+          filters:
+            - RewritePath=/user-service(?<segment>.*), $\{segment}
+
+        - id: booking-service-swagger
+          uri: lb://booking-service
+          predicates:
+            - Path=/booking-service/v3/api-docs/**, /booking-service/v3/api-docs
+          filters:
+            - RewritePath=/booking-service(?<segment>.*), $\{segment}
+
+        - id: user-service-api
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
+
+        - id: booking-service-api
+          uri: lb://booking-service
+          predicates:
+            - Path=/api/v1/bookings/**
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
 
 # Eureka uppkoppling
 eureka:
@@ -7,44 +41,28 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/ #Adress till service reg
 
-spring:
-  cloud:
-    gateway:
-      default-filters:
-        - TokenRelay #Fångar inkommande JWT och bifogar den i Authorization headern till separata tjänsten (booking-service)
-      routes:
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            # Sökvägarna korrigerade för att matcha kontrollernas faktiska endpoints
-            - Path=/api/users/**, /user-service/v3/api-docs
-          filters:
-            - RewritePath=/user-service/v3/api-docs, /v3/api-docs
-
-        - id: booking-service
-          uri: lb://booking-service
-          predicates:
-            - Path=/api/bookings/**, /booking-service/v3/api-docs
-          filters:
-            - RewritePath=/booking-service/v3/api-docs, /v3/api-docs
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          secret-key: secret-key-here
-
 # Aggregerar Swagger UI
 springdoc:
+  api-docs:
+    enabled: true
   swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
     urls:
       - name: User Service
-        url: /user/v3/api-docs
+        url: /user-service/v3/api-docs
       - name: Booking Service
-        url: /booking/v3/api-docs
+        url: /booking-service/v3/api-docs
 
-# Loggar fel vid nöd
+server:
+  port: 8080 # Port för Gateway
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "gateway"
+
 logging:
   level:
-    org.springframework.cloud.config: DEBUG
-    org.springframework.retry: DEBUG
-    org.springframework.boot.context.config: DEBUG
+    org.springframework.cloud.gateway: TRACE

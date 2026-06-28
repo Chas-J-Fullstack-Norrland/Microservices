@@ -3,12 +3,13 @@ package org.chasapi.microservices.gatewayapi.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
 @Configuration
-@EnableWebFlux
+@EnableWebFluxSecurity
 public class SecurityConfig {
 
     @Bean
@@ -16,8 +17,17 @@ public class SecurityConfig {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        // Tillåt trafik till Swagger UI och Eureka-upptäckter utan token
-                        .pathMatchers("/v3/api-docs/**", "/swagger-ui/**", "/webjars/**", "/eureka/**").permitAll()
+                        .pathMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/webjars/**",
+                                "/user-service/v3/api-docs",
+                                "/user-service/v3/api-docs/**",
+                                "/booking-service/v3/api-docs",
+                                "/booking-service/v3/api-docs/**",
+                                "/eureka/**"
+                        ).permitAll()
                         // All annan trafik kräver validerad JWT
                         .anyExchange().authenticated()
                 )
