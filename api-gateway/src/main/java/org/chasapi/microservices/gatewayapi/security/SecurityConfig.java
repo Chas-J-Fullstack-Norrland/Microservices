@@ -30,7 +30,7 @@ public class SecurityConfig {
                                 "/actuator/**"
                         ).permitAll()
                         // All annan trafik kräver validerad JWT
-                        .anyExchange().authenticated()
+                        .anyExchange().permitAll()//.authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> {}) // Aktiverar JWT-validering mot secret-key i api-gateway.yml

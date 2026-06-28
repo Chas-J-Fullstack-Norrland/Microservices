@@ -7,8 +7,13 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
     ports:
-      - "5433:5433"
+      - "5433:5432"
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d booking_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres-user:
     image: postgres
@@ -20,6 +25,11 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d user_service" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   service-registry:
     build:
@@ -65,7 +75,6 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8888
     depends_on:
         config-server:
           condition: service_healthy
@@ -88,7 +97,7 @@ services:
       config-server:
         condition: service_healthy
       postgres-booking:
-        condition: service_started
+        condition: service_healthy
 
   user-service:
     build:
@@ -108,4 +117,4 @@ services:
       config-server:
         condition: service_healthy
       postgres-user:
-        condition: service_started
+        condition: service_healthy

@@ -2,20 +2,3 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://service-registry:8761/eureka/
-
-spring:
-  datasource:
-    url: jdbc:postgresql://postgres-user:5432/user_service
-    driver-class-name: org.postgresql.Driver
-    username: admin
-    password: password
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          secret-key: secret-key-here
-
-  user-service:
-    build: ./user-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker

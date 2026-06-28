@@ -7,14 +7,14 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: admin
     password: password
-    jpa:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
       hibernate:
-        ddl-auto: update
-      spring:
-        jpa:
-          properties:
-            hibernate:
-              dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
   security:
     oauth2:
       resourceserver:
@@ -25,7 +25,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://service-registry:8761/eureka/
 
 # Swagger ui -_- booking-service
 springdoc:

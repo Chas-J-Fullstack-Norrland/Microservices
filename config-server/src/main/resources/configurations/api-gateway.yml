@@ -1,32 +1,31 @@
 spring:
   cloud:
     gateway:
-      default-filters:
-        - TokenRelay #Fångar inkommande JWT och bifogar den i Authorization headern till separata tjänsten (booking-service)
       routes:
-        - id: user-service-swagger
-          uri: lb://user-service
-          predicates:
-            - Path=/user-service/v3/api-docs/**, /user-service/v3/api-docs
-          filters:
-            - RewritePath=/user-service(?<segment>.*), $\{segment}
-
         - id: booking-service-swagger
-          uri: lb://booking-service
+          uri: http://booking-service:8082
           predicates:
-            - Path=/booking-service/v3/api-docs/**, /booking-service/v3/api-docs
+            - Path=/booking-service/v3/api-docs
           filters:
-            - RewritePath=/booking-service(?<segment>.*), $\{segment}
+            - StripPrefix=1
+
+        - id: user-service-swagger
+          uri: http://user-service:8081
+          predicates:
+            - Path=/user-service/v3/api-docs
+          filters:
+            - StripPrefix=1
 
         - id: user-service-api
-          uri: lb://user-service
+          uri: http://user-service:8081
           predicates:
             - Path=/api/v1/users/**
 
         - id: booking-service-api
-          uri: lb://booking-service
+          uri: http://booking-service:8082
           predicates:
             - Path=/api/v1/bookings/**
+
   security:
     oauth2:
       resourceserver:
@@ -37,20 +36,19 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/ #Adress till service reg
+      defaultZone: http://service-registry:8761/eureka/ #Adress till service reg
 
 # Aggregerar Swagger UI
 springdoc:
   api-docs:
     enabled: true
   swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
     urls:
-      - name: User Service
-        url: /user-service/v3/api-docs
-      - name: Booking Service
+      - name: Booking-service
         url: /booking-service/v3/api-docs
+
+      - name: User-service
+        url: /user-service/v3/api-docs
 
 server:
   port: 8080 # Port för Gateway
@@ -59,7 +57,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "gateway, health"
+        include: "gateway,health,env"
   endpoint:
     gateway:
       enabled: true
@@ -67,3 +65,5 @@ management:
 logging:
   level:
     org.springframework.cloud.gateway: TRACE
+    org.springframework.web: DEBUG
+    reactor.netty: DEBUG
