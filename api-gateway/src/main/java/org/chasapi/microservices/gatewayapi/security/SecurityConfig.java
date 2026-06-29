@@ -20,6 +20,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers(
+                                "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -32,9 +33,13 @@ public class SecurityConfig {
                                 "/actuator/**"
                         ).permitAll()
                         // All annan trafik kräver validerad JWT
-                        .pathMatchers(HttpMethod.POST, "/api/v1/users", "/user-service/api/v1/users").permitAll()
-                        .pathMatchers(HttpMethod.GET, "/api/v1/users", "/user-service/api/v1/users").permitAll()
-                        .pathMatchers(HttpMethod.DELETE, "/api/v1/users", "/user-service/api/v1/users").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/users", "/api/v1/users/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/users", "/api/v1/users/**").permitAll()
+                        .pathMatchers(HttpMethod.DELETE, "/api/v1/users", "/api/v1/users/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/bookings", "/api/v1/bookings/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/bookings", "/api/v1/bookings/**").permitAll()
+                        .pathMatchers(HttpMethod.DELETE, "/api/v1/bookings", "/api/v1/bookings/**").permitAll()
+                        .pathMatchers(HttpMethod.PUT, "/api/v1/bookings", "/api/v1/bookings/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

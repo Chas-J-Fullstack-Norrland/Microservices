@@ -29,9 +29,12 @@ eureka:
 springdoc:
   api-docs:
     path: /v3/api-docs
+    use-root-path: true
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: alpha
+    remove-broken-reference-definitions: true
+    override-with-generic-response: false
 
 server:
   port: 8082
