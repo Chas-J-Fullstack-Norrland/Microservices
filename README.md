@@ -1,3 +1,4 @@
+## Introduktion
 Systemet är uppbyggt enligt en mikrotjänstarkitektur där varje tjänst ansvarar för ett avgränsat verksamhetsområde. Tjänsterna körs som separata applikationer och kommunicerar över HTTP via ett API Gateway.
 
 API Gateway fungerar som systemets enda ingångspunkt och ansvarar för att dirigera inkommande förfrågningar till rätt mikrotjänst. Gatewayn kan även hantera gemensamma funktioner såsom autentisering, auktorisering och routning.
@@ -52,7 +53,7 @@ Varje mikrotjänst har ett eget ansvar för affärslogik och datalagring. Detta 
                          | Config Server |
                          +---------------+
 
-API Gateway
+## API Gateway
 
 Gatewayn fungerar som den centrala ingångspunkten till systemet. Den ansvarar för att:
 
@@ -63,15 +64,15 @@ minska kopplingen mellan klient och interna tjänster.
 
 Klienten kommunicerar endast med gatewayn och har ingen direkt kontakt med de bakomliggande mikrotjänsterna.
 
-Service Registry
+## Service Registry
 
 Service Registry används för tjänsteupptäckt (Service Discovery). När en mikrotjänst startar registrerar den sig automatiskt. API Gateway och övriga tjänster kan därefter hitta varandra utan att IP-adresser eller portar behöver konfigureras manuellt.
 
-Config Server
+## Config Server
 
 Config Server tillhandahåller centraliserad konfiguration för samtliga mikrotjänster. Vid uppstart hämtar respektive tjänst sina inställningar från Config Server, vilket gör konfigurationen enhetlig och enklare att underhålla.
 
-Mikrotjänster
+## Mikrotjänster
 
 Varje mikrotjänst ansvarar för ett specifikt verksamhetsområde och innehåller:
 
@@ -82,7 +83,7 @@ egen konfiguration.
 
 Denna uppdelning gör att tjänster kan utvecklas och distribueras oberoende av varandra.
 
-Säkerhet
+## Säkerhet
 
 Systemet använder en central säkerhetslösning där API Gateway fungerar som första kontrollpunkt för inkommande trafik.
 
@@ -105,14 +106,14 @@ Starta systemet lokalt
 
 Följande steg används för att starta systemet i en lokal utvecklingsmiljö.
 
-1. Klona projektet
+## 1. Klona projektet
 
 Klona projektets repository till den lokala datorn.
 
 git clone <repository-url>
 cd <projekt>
 
-2. Kontrollera förutsättningar
+## 2. Kontrollera förutsättningar
 
 Följande programvara bör vara installerad:
 
@@ -121,7 +122,7 @@ Gradle
 Docker
 Docker Compose
 
-3. Starta infrastrukturen
+## 3. Starta infrastrukturen
 
 OBS: /gradlew clean build kan krävas vid första uppstart
 
@@ -131,7 +132,7 @@ docker compose up --build
 
 Vid första uppstart kan nedladdning av beroenden ta några minuter.
 
-4. Kontrollera att tjänsterna har startat
+## 4. Kontrollera att tjänsterna har startat
 
 Verifiera att samtliga containrar körs.
 
@@ -139,13 +140,13 @@ docker ps
 
 Kontrollera även att samtliga mikrotjänster registrerat sig i Service Registry.
 
-5. Öppna API Gateway
+## 5. Öppna API Gateway
 
 När systemet är färdigstartat används API Gateway som ingångspunkt för samtliga anrop.
 
 Swagger/OpenAPI kan därefter användas för att testa de exponerade API:erna.
 
-Stänga systemet
+## Stänga systemet
 
 Samtliga tjänster stoppas med:
 
