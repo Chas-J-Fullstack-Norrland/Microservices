@@ -3,6 +3,7 @@ package org.chasapi.microservices.gatewayapi.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -17,6 +18,7 @@ public class SecurityConfig {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -30,7 +32,10 @@ public class SecurityConfig {
                                 "/actuator/**"
                         ).permitAll()
                         // All annan trafik kräver validerad JWT
-                        .anyExchange().permitAll()//.authenticated()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/users", "/user-service/api/v1/users").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/users", "/user-service/api/v1/users").permitAll()
+                        .pathMatchers(HttpMethod.DELETE, "/api/v1/users", "/user-service/api/v1/users").permitAll()
+                        .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> {}) // Aktiverar JWT-validering mot secret-key i api-gateway.yml
