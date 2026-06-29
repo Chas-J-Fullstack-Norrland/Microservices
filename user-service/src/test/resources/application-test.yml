@@ -1,21 +1,13 @@
 spring:
-  application:
-    name: user-service
-  config:
-    import: "optional:configserver:"
   cloud:
     config:
       enabled: false
-      fail-fast: false
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
-  datasource:
-    driver-class-name: org.postgresql.Driver
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
 
 eureka:
   client:
     enabled: false
-    register-with-eureka: false
-    fetch-registry: false

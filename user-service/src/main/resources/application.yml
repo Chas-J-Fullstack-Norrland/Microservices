@@ -2,27 +2,38 @@ spring:
   application:
     name: user-service
 
-  config:
-    import: configserver:${CONFIG_SERVER_URI:http://localhost:8888}
+  datasource:
+    url: jdbc:postgresql://postgres-user:5432/user_service
+    driver-class-name: org.postgresql.Driver
+    username: admin
+    password: password
 
-  cloud:
-    config:
-      fail-fast: true
-      retry:
-        max-attempts: 10
-        initial-interval: 2000
-        multiplier: 1.5
-        max-interval: 8000
-logging:
-  level:
-    org.springframework.cloud.config: DEBUG
-    org.springframework.retry: DEBUG
-    org.springframework.boot.context.config: DEBUG
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
-# Swagger ui -_- user-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
+
+# Eureka uppkoppling
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://service-registry:8761/eureka/
+
+# Swagger ui -_- booking-service
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: alpha
+
+server:
+  port: 8081

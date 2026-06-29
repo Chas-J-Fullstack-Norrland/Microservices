@@ -1,3 +1,7 @@
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 rootProject.name = 'Microservices'
 
 include 'booking-service'
@@ -5,3 +9,4 @@ include 'api-gateway'
 include 'service-registry'
 include 'user-service'
 include 'config-server'
+

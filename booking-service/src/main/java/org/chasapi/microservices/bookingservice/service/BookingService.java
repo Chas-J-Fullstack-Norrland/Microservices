@@ -1,0 +1,46 @@
+package org.chasapi.microservices.bookingservice.service;
+
+import org.chasapi.microservices.bookingservice.model.Booking;
+import org.chasapi.microservices.bookingservice.repository.BookingRepository;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@FeignClient(name = "user-service")
+public class BookingService {
+
+    private final BookingRepository bookingRepository;
+
+    public BookingService(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
+    }
+
+    public Booking createBooking(Booking booking) {
+        booking.setStatus("PENDING");
+        return bookingRepository.save(booking);
+    }
+    public List<Booking> getBookingsByUser(Long userId) {
+        return bookingRepository.findByUserId(userId);
+    }
+
+    public Optional<Booking> getBookingById(Long id) {
+        return bookingRepository.findById(id);
+    }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
+
+    public Booking updateStatus(Long id, String status) {
+        Booking booking = bookingRepository.findById(id).orElseThrow(() -> new RuntimeException("Booking not found"));
+        booking.setStatus(status);
+        return bookingRepository.save(booking);
+    }
+
+    public void deleteBooking(Long id) {
+        bookingRepository.deleteById(id);
+    }
+}

@@ -1,19 +1,40 @@
-server:
-  port: 8085
-
 spring:
   application:
     name: booking-service
 
   datasource:
-    url: jdbc:postgresql://postgres-booking:5431/booking_service
+    url: jdbc:postgresql://postgres-booking:5432/booking_service
     driver-class-name: org.postgresql.Driver
     username: admin
     password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
+
+# Eureka uppkoppling
 eureka:
   client:
-    initial-instance-info-replication-interval-seconds: 5
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
-app:
-  eureka-server: localhost
+      defaultZone: http://service-registry:8761/eureka/
+
+# Swagger ui -_- booking-service
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+
+server:
+  forward-headers-strategy: framework
+  port: 8082

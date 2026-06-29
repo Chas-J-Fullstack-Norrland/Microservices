@@ -1,43 +1,81 @@
+server:
+  port: 8080 # Port för Gateway
+
 spring:
   application:
     name: api-gateway
 
-  config:
-    import: configserver:${CONFIG_SERVER_URI:http://localhost:8888}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
 
   cloud:
-    config:
-      fail-fast: true
-      retry:
-        max-attempts: 10
-        initial-interval: 2000
-        multiplier: 1.5
-        max-interval: 8000
-
-    #Gateway för integration av swagger ui -O-
     gateway:
-      routes:
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/user/**
-            
-        - id: booking-service
-          uri: lb://booking-service
-          predicates:
-            - Path=/booking/**
+      server:
+        webflux:
+          routes:
+            - id: booking-service-swagger
+              uri: http://booking-service:8082
+              predicates:
+                - Path=/booking-service/**
+              filters:
+                - StripPrefix=1
 
-#Pseudokod för swagger integration -O-
+            - id: user-service-swagger
+              uri: http://user-service:8081
+              predicates:
+                - Path=/user-service/**
+              filters:
+                - StripPrefix=1
+
+            - id: user-service-api
+              uri: http://user-service:8081
+              predicates:
+                - Path=/api/v1/users/**
+
+            - id: booking-service-api
+              uri: http://booking-service:8082
+              predicates:
+                - Path=/api/v1/bookings/**
+
+            - id: booking-root
+              uri: http://booking-service:8082
+              predicates:
+                - Path=/booking/**
+              filters:
+                - RewritePath=/booking/(?<segment>.*), /${segment}
+
+# Eureka uppkoppling
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://service-registry:8761/eureka/ #Adress till service reg
+
+# Aggregerar Swagger UI
 springdoc:
+  api-docs:
+    enabled: true
   swagger-ui:
     urls:
-      - name: User Service
-        url: /user/v3/api-docs
-      - name: Booking Service
-        url: /booking/v3/api-docs
+      - name: Booking-service
+        url: /booking-service/v3/api-docs
+
+      - name: User-service
+        url: /user-service/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "gateway,health,env,*"
+  endpoint:
+    gateway:
+      enabled: true
 
 logging:
   level:
-    org.springframework.cloud.config: DEBUG
-    org.springframework.retry: DEBUG
-    org.springframework.boot.context.config: DEBUG
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.web: DEBUG
+    reactor.netty: DEBUG

@@ -2,27 +2,39 @@ spring:
   application:
     name: booking-service
 
-  config:
-    import: configserver:${CONFIG_SERVER_URI:http://localhost:8888}
+  datasource:
+    url: jdbc:postgresql://postgres-booking:5432/booking_service
+    driver-class-name: org.postgresql.Driver
+    username: admin
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: secret-key-here
 
-  cloud:
-    config:
-      fail-fast: true
-      retry:
-        max-attempts: 10
-        initial-interval: 2000
-        multiplier: 1.5
-        max-interval: 8000
-logging:
-  level:
-    org.springframework.cloud.config: DEBUG
-    org.springframework.retry: DEBUG
-    org.springframework.boot.context.config: DEBUG
+# Eureka uppkoppling
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://service-registry:8761/eureka/
 
 # Swagger ui -_- booking-service
 springdoc:
   api-docs:
     path: /v3/api-docs
+    use-root-path: true
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: alpha
+    remove-broken-reference-definitions: true
+    override-with-generic-response: false
+
+server:
+  port: 8082

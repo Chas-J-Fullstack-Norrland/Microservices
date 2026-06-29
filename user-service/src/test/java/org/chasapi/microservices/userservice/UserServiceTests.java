@@ -1,7 +1,7 @@
 package org.chasapi.microservices.userservice;
 
 
-import org.chasapi.microservices.userservice.Service.UserService;
+import org.chasapi.microservices.userservice.service.UserService;
 import org.chasapi.microservices.userservice.dto.UserRequest;
 import org.chasapi.microservices.userservice.dto.UserResponse;
 import org.chasapi.microservices.userservice.model.User;
@@ -10,9 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -22,23 +23,21 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false",
+        "spring.jpa.hibernate.ddl-auto=update"
+})
 @Testcontainers
 @ActiveProfiles("test")
 public class UserServiceTests {
 
     @Container
+    @ServiceConnection
     static PostgreSQLContainer<?> dbContainer = new PostgreSQLContainer<>("postgres:latest")
-            .withDatabaseName("user-service")
+            .withDatabaseName("user-service-test")
             .withUsername("admin")
             .withPassword("password");
-
-    @DynamicPropertySource
-    static void registerProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", dbContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", dbContainer::getUsername);
-        registry.add("spring.datasource.password", dbContainer::getPassword);
-    }
 
     @Autowired
     UserRepository repository;
@@ -46,11 +45,13 @@ public class UserServiceTests {
     @Autowired
     UserService userService;
 
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
     @BeforeEach
     void cleanUp() {
         repository.deleteAll();
     }
-
 
     // --- UserService tests ---
 
